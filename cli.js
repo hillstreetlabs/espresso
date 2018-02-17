@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 let program = require("commander");
-let test = require("./lib");
+let espresso = require("./lib");
 
 let testPath = ".";
 
@@ -11,6 +11,5 @@ program.arguments("[path]").action(function(path) {
 
 program.parse(process.argv);
 
-console.log("Hey, let's run some tests here: " + testPath);
-test.run();
+espresso.run();
 

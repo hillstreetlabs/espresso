@@ -675,7 +675,7 @@ truffle-blockchain-utils@^0.0.3:
   dependencies:
     web3 "^0.20.1"
 
-truffle-compile@^3.0.4:
+truffle-compile@^3.0.4, truffle-compile@^3.0.5:
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/truffle-compile/-/truffle-compile-3.0.5.tgz#a1b69fe5dea072e1875f54a5d6c605db339bbd00"
   dependencies:
