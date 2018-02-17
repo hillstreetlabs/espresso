@@ -9,7 +9,6 @@
     "chai": "^4.1.2",
     "commander": "^2.14.1",
     "mocha-parallel-tests": "^1.2.10",
-    "mocha.parallel": "^0.15.5",
     "truffle": "^4.0.5",
     "truffle-compile": "^3.0.5",
     "truffle-config": "^1.0.4",
