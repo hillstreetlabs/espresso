@@ -1,0 +1,21 @@
+{
+  "name": "espresso",
+  "version": "1.0.0",
+  "description": "Speedy testing framework for Solidity smart contracts",
+  "main": "index.js",
+  "author": "Hill Street Labs",
+  "license": "MIT",
+  "dependencies": {
+    "chai": "^4.1.2",
+    "commander": "^2.14.1",
+    "truffle": "^4.0.5",
+    "truffle-config": "^1.0.4",
+    "truffle-migrate": "^2.0.1",
+    "truffle-resolver": "^4.0.1",
+    "truffle-workflow-compile": "^1.0.0",
+    "web3": "^0.20.4"
+  },
+  "bin": {
+    "espresso": "./cli.js"
+  }
+}
