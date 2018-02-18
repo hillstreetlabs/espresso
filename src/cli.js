@@ -22,7 +22,7 @@ if (program.verbose) {
 } else if (program.fun) {
   reporter = "nyan";
 } else {
-  reporter = MiniReporter;
+  reporter = "spec";
 }
 
 const instance = new Espresso({
