@@ -1,6 +1,6 @@
 import { Config } from "../truffle/helpers";
 
-const getConfig = function() {
+const getTestConfig = function() {
   let config = Config.detect({
     workingDirectory: path.resolve("."),
     buildFolder: ".test"
@@ -30,4 +30,4 @@ const getAccounts = function(web3) {
   });
 };
 
-export { getConfig, getAccounts };
+export { getTestConfig, getAccounts };
