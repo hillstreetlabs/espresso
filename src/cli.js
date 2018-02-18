@@ -14,6 +14,4 @@ program
 
 program.parse(process.argv);
 
-console.log(program.watch);
-
 espresso(testPath, program.watch);

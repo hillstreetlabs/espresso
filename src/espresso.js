@@ -94,8 +94,8 @@ const showCursor = () => {
   process.stdout.write("\u001b[?25h");
 };
 
-const watch = function(config, files, callback) {
-  var options = { interval: 100 };
+const watch = (config, files, callback) => {
+  let options = { interval: 100 };
   files.forEach(function(file) {
     watchFile(file, options, function(curr, prev) {
       if (prev.mtime < curr.mtime) {
@@ -121,7 +121,7 @@ const performDeploy = function(config, resolver) {
   });
 };
 
-export default async function(testPath, watch) {
+export default async function(testPath, watchOption) {
   let config = getConfig();
 
   let web3 = new Web3();
@@ -196,57 +196,69 @@ export default async function(testPath, watch) {
     throw reason;
   });
 
-  hideCursor();
-  process.on("SIGINT", () => {
-    showCursor();
-    console.log("\n");
-    process.exit(130);
-  });
-
-  let runAgain = false;
-  let runnerStub;
-
-  const loadAndRun = () => {
-    try {
-      // Add each .js file to the mocha instance
-      files.forEach(function(file) {
-        mocha.addFile(path.join(config.test_directory, file));
-      });
-      runner = new TestRunner(config);
-      runAgain = false;
-      runnerStub = mocha.run(() => {
-        runnerStub = null;
-        if (runAgain) {
-          rerun();
-        }
-      });
-    } catch (e) {
-      console.log(e.stack);
-    }
-  };
-
-  const purge = () => {
-    watchFiles.forEach(file => {
-      delete require.cache[file];
+  if (watchOption === true) {
+    hideCursor();
+    process.on("SIGINT", () => {
+      showCursor();
+      console.log("\n");
+      process.exit(130);
     });
-  };
 
-  loadAndRun();
+    let runAgain = false;
+    let runnerStub;
 
-  const rerun = () => {
-    purge();
-    mocha.suite = mocha.suite.clone();
-    mocha.suite.ctx = new MochaParallel.Context();
+    const loadAndRun = () => {
+      try {
+        // Add each .js file to the mocha instance
+        files.forEach(function(file) {
+          mocha.addFile(path.join(config.test_directory, file));
+        });
+        runner = new TestRunner(config);
+        runAgain = false;
+        runnerStub = mocha.run(() => {
+          runnerStub = null;
+          if (runAgain) {
+            rerun();
+          }
+        });
+      } catch (e) {
+        console.log(e.stack);
+      }
+    };
+
+    const purge = () => {
+      watchFiles.forEach(file => {
+        delete originalrequire.cache[file];
+      });
+    };
+
     loadAndRun();
-  };
 
-  watch(config, watchFiles, () => {
-    console.log("Change detected");
-    runAgain = true;
-    if (runnerStub) {
-      runnerStub.abort();
-    } else {
-      rerun();
-    }
-  });
+    const rerun = () => {
+      purge();
+      mocha.suite = mocha.suite.clone();
+      mocha.suite.ctx = new MochaParallel.Context();
+      loadAndRun();
+    };
+
+    watch(config, watchFiles, () => {
+      console.log("Change detected");
+      runAgain = true;
+      if (runnerStub) {
+        runnerStub.abort();
+      } else {
+        rerun();
+      }
+    });
+  } else {
+    files.forEach(function(file) {
+      mocha.addFile(path.join(config.test_directory, file));
+    });
+    // Run the tests.
+    mocha.run(function(failures) {
+      process.on("exit", function() {
+        process.exit(failures); // exit with non-zero status if there were failures
+      });
+    });
+  }
 }
