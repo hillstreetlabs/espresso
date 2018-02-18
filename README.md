@@ -18,15 +18,14 @@ Created by [@mertcelebi](https://github.com/mertcelebi) and [@pfletcherhill](htt
 Install packages and run the build script (we prefer using [yarn](https://yarnpkg.com/en/))
 
 ```
-yarn
-yarn run dev
+yarn add espresso-tests --dev
 ```
 
-In a separate tab, go to the directory you want to run tests for and run espresso
+### Running tests
 
 ```
 cd /path/to/sample_project
-node /path/to/espresso/dist/cli.js
+espresso
 ```
 
 ### Inspiration
