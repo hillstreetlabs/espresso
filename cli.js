@@ -3,7 +3,7 @@
 let program = require("commander");
 let espresso = require("./lib");
 
-let testPath = ".";
+let testPath = "./test";
 
 program.arguments("[path]").action(function(path) {
   testPath = path;
@@ -11,6 +11,6 @@ program.arguments("[path]").action(function(path) {
 
 program.parse(process.argv);
 
-espresso.run();
+espresso.run(testPath);
 
 // espresso.watch();
