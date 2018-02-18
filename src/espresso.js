@@ -34,7 +34,7 @@ const mochaTemplate = function(runner, tests, accounts) {
   tests(accounts);
 };
 
-export default async function(testPath, watchOption) {
+export default async function(testPath, watchOption, reporterOption) {
   let config = getTestConfig();
   let mocha = new MochaParallel();
 
@@ -44,7 +44,7 @@ export default async function(testPath, watchOption) {
     if (err) {
       console.log("Error: ", err);
     } else {
-      console.log("Launched!", chain);
+      console.log("Launched Ganache!");
     }
   });
 
@@ -80,7 +80,7 @@ export default async function(testPath, watchOption) {
   testResolver.cache_on = false;
 
   // Compile and deploy contracts
-  await compileContracts(config, testResolver);
+  let smartContracts = await compileContracts(config, testResolver);
   await performDeploy(config, testResolver);
 
   // Set test runner.
@@ -121,7 +121,7 @@ export default async function(testPath, watchOption) {
         runner = new TestRunner(config);
         runAgain = false;
 
-        runnerStub = mocha.run(() => {
+        runnerStub = mocha.reporter(reporterOption).run(() => {
           runnerStub = null;
           if (runAgain) rerun();
         });
@@ -144,12 +144,24 @@ export default async function(testPath, watchOption) {
     };
 
     loadAndRun();
-    watch(config, watchFiles, () => {
+    watch(config, watchFiles, async function() {
       runAgain = true;
       if (runnerStub) {
         runnerStub.abort();
         server.close();
       } else {
+        rerun();
+      }
+    });
+
+    watch(config, smartContracts, async function() {
+      runAgain = true;
+      if (runnerStub) {
+        runnerStub.abort();
+        server.close();
+      } else {
+        await compileContracts(config, testResolver);
+        await performDeploy(config, testResolver);
         rerun();
       }
     });
@@ -166,7 +178,7 @@ export default async function(testPath, watchOption) {
     files.forEach(function(file) {
       mocha.addFile(file);
     });
-    mocha.run(function(failures) {
+    mocha.reporter(reporterOption).run(function(failures) {
       process.on("exit", function() {
         process.exit(failures);
       });
