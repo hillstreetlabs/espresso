@@ -4,7 +4,9 @@ import { Profiler, Contracts, Migrate } from "./truffle/external";
 
 export default class Server {
   constructor() {
-    this.ganache = Ganache.server();
+    this.ganache = Ganache.server({
+      default_balance_ether: 1000
+    });
     this.web3 = new Web3();
     this.accounts = [];
   }
