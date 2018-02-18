@@ -1,50 +1,20 @@
-import Mocha from "mocha";
-import MochaParallel from "mocha-parallel-tests";
+import Web3 from "web3";
 import Ganache from "ganache-core";
 import path from "path";
 import fs, { watchFile } from "fs";
-import Web3 from "web3";
 import originalrequire from "original-require";
-import Resolver from "truffle-resolver";
-import Contracts from "truffle-workflow-compile";
-import Migrate from "truffle-migrate";
-import Profiler from "truffle-compile/profiler.js";
-import { Config, TestResolver, TestSource, TestRunner } from "./testing";
+import MochaParallel from "mocha-parallel-tests";
 
-const getConfig = function() {
-  let config = Config.detect({
-    workingDirectory: path.resolve("."),
-    buildFolder: ".test",
-    networks: {
-      test: {
-        host: "localhost",
-        port: 8545,
-        network_id: "*" // match any network
-      }
-    }
-  });
-
-  // if "development" exists, default to using that for testing
-  // if (!config.network && config.networks.development) {
-  //   config.network = "development";
-  // }
-
-  config.network = "test";
-
-  return config;
-};
-
-const getAccounts = function(web3) {
-  return new Promise(function(resolve, reject) {
-    web3.eth.getAccounts(function(err, res) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(res);
-      }
-    });
-  });
-};
+import { Resolver } from "./truffle/external";
+import { TestResolver, TestSource, TestRunner } from "./truffle/helpers";
+import {
+  hideCursor,
+  showCursor,
+  getAccounts,
+  getTestConfig,
+  watch,
+  parseTestFiles
+} from "./helpers";
 
 const mochaTemplate = function(runner, tests, accounts) {
   before("prepare suite", function(done) {
@@ -62,106 +32,23 @@ const mochaTemplate = function(runner, tests, accounts) {
   tests(accounts);
 };
 
-const compileContracts = function(config, test_resolver) {
-  return new Promise(function(resolve, reject) {
-    Profiler.updated(
-      config.with({
-        resolver: test_resolver
-      }),
-      function(err, updated) {
-        if (err) return reject(err);
-
-        updated = updated || [];
-
-        // Compile project contracts and test contracts
-        Contracts.compile(
-          config.with({
-            all: config.compileAll === true,
-            files: updated,
-            resolver: test_resolver,
-            quiet: false,
-            quietWrite: true
-          }),
-          function(err, abstractions, paths) {
-            if (err) return reject(err);
-            resolve(paths);
-          }
-        );
-      }
-    );
-  });
-};
-
-const hideCursor = () => {
-  process.stdout.write("\u001b[?25l");
-};
-
-const showCursor = () => {
-  process.stdout.write("\u001b[?25h");
-};
-
-const watch = (config, files, callback) => {
-  let options = { interval: 100 };
-  files.forEach(function(file) {
-    watchFile(file, options, function(curr, prev) {
-      if (prev.mtime < curr.mtime) {
-        callback();
-      }
-    });
-  });
-};
-
-const performDeploy = function(config, resolver) {
-  return new Promise(function(resolve, reject) {
-    Migrate.run(
-      config.with({
-        reset: true,
-        resolver: resolver,
-        quiet: true
-      }),
-      function(err) {
-        if (err) return reject(err);
-        resolve();
-      }
-    );
-  });
-};
-
 export default async function(testPath, watchOption) {
-  let config = getConfig();
+  let config = getTestConfig();
+  let mocha = new MochaParallel();
 
-  console.log(config.provider);
-
+  // Launch server
   let server = Ganache.server();
-
-  const chain = await server.listen(8545, (err, chain) => {
-    return chain;
+  await server.listen(8545, (err, chain) => {
+    if (err) {
+      console.log("Error: ", err);
+    } else {
+      console.log("Launched!", chain);
+    }
   });
-
-  console.log("Launched", chain);
 
   let web3 = new Web3();
-
   web3.setProvider(config.provider);
-
-  let mocha = new MochaParallel();
-  let watchFiles = [];
-  let files = [];
-
-  const stats = fs.lstatSync(testPath);
-  if (stats.isFile() && testPath.substr(-3) === ".js") {
-    files = [path.resolve(testPath)];
-  } else if (stats.isDirectory()) {
-    files = fs.readdirSync(path.resolve(testPath)).filter(function(file) {
-      // Only keep the .js files
-      return file.substr(-3) === ".js";
-    });
-  }
-
-  files.forEach(function(file) {
-    delete originalrequire.cache[file];
-    watchFiles.push(path.join(config.test_directory, file));
-  });
+  global.web3 = web3;
 
   // Set accounts
   let accounts = await getAccounts(web3);
@@ -169,13 +56,20 @@ export default async function(testPath, watchOption) {
     config.networks[config.network].from = accounts[0];
   }
 
-  // from truffle test.js
   if (!config.resolver) {
     config.resolver = new Resolver(config);
   }
 
-  let testSource = new TestSource(config);
+  // Set test files
+  let watchFiles = [];
+  let files = parseTestFiles(testPath);
+  files.forEach(function(file) {
+    delete originalrequire.cache[file];
+    watchFiles.push(path.join(config.test_directory, file));
+  });
 
+  // Set testers
+  let testSource = new TestSource(config);
   let testResolver = new TestResolver(
     config.resolver,
     testSource,
@@ -183,45 +77,19 @@ export default async function(testPath, watchOption) {
   );
   testResolver.cache_on = false;
 
-  let dependencyPaths = await compileContracts(config, testResolver);
-
-  let runner = new TestRunner(config);
-
+  // Compile and deploy contracts
+  await compileContracts(config, testResolver);
   await performDeploy(config, testResolver);
 
-  global.web3 = web3;
-  global.artifacts = {
-    require: function(import_path) {
-      return testResolver.require(import_path);
-    }
-  };
+  // Set test runner.
+  let runner = new TestRunner(config);
 
-  global.contract = function(name, tests) {
-    Mocha.describe("Contract: " + name, function() {
-      mochaTemplate.bind(this, runner, tests, accounts)();
-    });
-  };
-
-  global.contract.only = function(name, tests) {
-    Mocha.describe.only("Contract: " + name, function() {
-      mochaTemplate.bind(this, runner, tests, accounts)();
-    });
-  };
-
-  process.on("unhandledRejection", function(reason, p) {
-    throw reason;
-  });
-
+  // Listen for changes in the test files
   if (watchOption === true) {
-    hideCursor();
-    process.on("SIGINT", () => {
-      showCursor();
-      console.log("\n");
-      process.exit(130);
-    });
-
     let runAgain = false;
     let runnerStub;
+
+    hideCursor();
 
     const loadAndRun = () => {
       try {
@@ -231,14 +99,13 @@ export default async function(testPath, watchOption) {
         });
         runner = new TestRunner(config);
         runAgain = false;
+
         runnerStub = mocha.run(() => {
           runnerStub = null;
-          if (runAgain) {
-            rerun();
-          }
+          if (runAgain) rerun();
         });
-      } catch (e) {
-        console.log(e.stack);
+      } catch (error) {
+        console.log(error.stack);
       }
     };
 
@@ -248,8 +115,6 @@ export default async function(testPath, watchOption) {
       });
     };
 
-    loadAndRun();
-
     const rerun = () => {
       purge();
       mocha.suite = mocha.suite.clone();
@@ -257,8 +122,8 @@ export default async function(testPath, watchOption) {
       loadAndRun();
     };
 
+    loadAndRun();
     watch(config, watchFiles, () => {
-      console.log("Change detected");
       runAgain = true;
       if (runnerStub) {
         runnerStub.abort();
@@ -266,16 +131,46 @@ export default async function(testPath, watchOption) {
         rerun();
       }
     });
+
+    // User ends the test
+    process.on("SIGINT", () => {
+      showCursor();
+      console.log("\n");
+      process.exit(130);
+    });
   } else {
+    // Run tests only once.
     files.forEach(function(file) {
       mocha.addFile(path.join(config.test_directory, file));
     });
-    // Run the tests.
     mocha.run(function(failures) {
       process.on("exit", function() {
-        process.exit(failures); // exit with non-zero status if there were failures
+        process.exit(failures);
       });
       server.close();
     });
   }
+
+  process.on("unhandledRejection", function(reason, p) {
+    throw reason;
+  });
+
+  // Set add-ons for smart contract testing
+  global.artifacts = {
+    require: function(import_path) {
+      return testResolver.require(import_path);
+    }
+  };
+
+  global.contract = function(name, tests) {
+    MochaParallel.describe("Contract: " + name, function() {
+      mochaTemplate.bind(this, runner, tests, accounts)();
+    });
+  };
+
+  global.contract.only = function(name, tests) {
+    MochaParallel.describe.only("Contract: " + name, function() {
+      mochaTemplate.bind(this, runner, tests, accounts)();
+    });
+  };
 }
