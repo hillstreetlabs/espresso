@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-let program = require("commander");
-let espresso = require("./lib");
+import program from "commander";
+import espresso from "./espresso";
 
 let testPath = "./test";
 
@@ -11,5 +11,5 @@ program.arguments("[path]").action(function(path) {
 
 program.parse(process.argv);
 
-espresso.run(testPath);
+espresso(testPath);
 

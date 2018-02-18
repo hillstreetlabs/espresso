@@ -1,20 +1,13 @@
-let Mocha = require("mocha");
-let MochaParallel = require("mocha-parallel-tests");
-let path = require("path");
-let fs = require("fs");
-let Web3 = require("web3");
-
-// Truffle files
-let Resolver = require("truffle-resolver");
-let Contracts = require("truffle-workflow-compile");
-let Migrate = require("truffle-migrate");
-let Profiler = require("truffle-compile/profiler.js");
-
-// Local truffle files
-let Config = require("./testing/config");
-let TestResolver = require("./testing/testresolver");
-let TestSource = require("./testing/testsource");
-let TestRunner = require("./testing/testrunner");
+import Mocha from "mocha";
+import MochaParallel from "mocha-parallel-tests";
+import path from "path";
+import fs from "fs";
+import Web3 from "web3";
+import Resolver from "truffle-resolver";
+import Contracts from "truffle-workflow-compile";
+import Migrate from "truffle-migrate";
+import Profiler from "truffle-compile/profiler.js";
+import { Config, TestResolver, TestSource, TestRunner } from "./testing";
 
 const getConfig = function() {
   let config = Config.detect({
@@ -108,7 +101,7 @@ const performDeploy = function(config, resolver) {
   });
 };
 
-const run = async function(testPath) {
+export default async function(testPath) {
   let config = getConfig();
 
   let web3 = new Web3();
@@ -189,6 +182,4 @@ const run = async function(testPath) {
       process.exit(failures); // exit with non-zero status if there were failures
     });
   });
-};
-
-module.exports = { run: run };
+}
