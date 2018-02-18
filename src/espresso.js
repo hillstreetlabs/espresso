@@ -22,6 +22,7 @@ export default class Espresso {
   constructor(options = {}) {
     this.testPath = options.testPath || ".";
     this.watch = options.watch;
+    this.reporter = options.reporter;
     this.server = new Server();
     this.mocha = new MochaParallel();
   }
@@ -56,12 +57,10 @@ export default class Espresso {
     if (stats.isFile() && this.testPath.substr(-3) === ".js") {
       files = [path.resolve(this.testPath)];
     } else if (stats.isDirectory()) {
-      const temp = fs
-        .readdirSync(path.resolve(this.testPath))
-        .filter(function(file) {
-          return file.substr(-3) === ".js";
-        });
-      temp.forEach(function(file) {
+      const temp = fs.readdirSync(path.resolve(this.testPath)).filter(file => {
+        return file.substr(-3) === ".js";
+      });
+      temp.forEach(file => {
         files.push(path.join(this.config.test_directory, file));
       });
     }
@@ -109,13 +108,13 @@ export default class Espresso {
 
     // Set test files
     let watchFiles = [];
-    this.testFiles.forEach(function(file) {
+    this.testFiles.forEach(file => {
       delete originalrequire.cache[file];
       watchFiles.push(file);
     });
 
     // Compile and deploy contracts
-    await this.server.compile(
+    let smartContracts = await this.server.compile(
       this.config.with({ resolver: this.testResolver })
     );
     await this.server.migrate(
@@ -141,7 +140,7 @@ export default class Espresso {
           this.testRunner = new TestRunner(this.config);
           runAgain = false;
 
-          runnerStub = this.mocha.run(() => {
+          runnerStub = this.mocha.reporter(this.reporter).run(() => {
             runnerStub = null;
             if (runAgain) rerun();
           });
@@ -164,12 +163,29 @@ export default class Espresso {
       };
 
       loadAndRun();
-      watch(this.config, watchFiles, () => {
+      watch(this.config, watchFiles, async () => {
         runAgain = true;
         if (runnerStub) {
           runnerStub.abort();
           this.server.close();
         } else {
+          rerun();
+        }
+      });
+
+      watch(this.config, smartContracts, async () => {
+        runAgain = true;
+        if (runnerStub) {
+          runnerStub.abort();
+          this.server.close();
+        } else {
+          // Compile and deploy contracts
+          let smartContracts = await this.server.compile(
+            this.config.with({ resolver: this.testResolver })
+          );
+          await this.server.migrate(
+            this.config.with({ resolver: this.testResolver })
+          );
           rerun();
         }
       });
@@ -194,7 +210,7 @@ export default class Espresso {
       });
     }
 
-    process.on("unhandledRejection", function(reason, p) {
+    process.on("unhandledRejection", (reason, p) => {
       throw reason;
     });
   }

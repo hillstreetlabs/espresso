@@ -33,6 +33,7 @@
     "ganache-core": "^2.0.2",
     "mobx": "^3.5.1",
     "mocha": "^5.0.1",
-    "truffle-artifactor": "^3.0.3"
+    "truffle-artifactor": "^3.0.3",
+    "mocha-better-spec-reporter": "^3.1.0"
   }
 }
