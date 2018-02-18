@@ -1,8 +1,9 @@
 import Mocha from "mocha";
 import MochaParallel from "mocha-parallel-tests";
 import path from "path";
-import fs from "fs";
+import fs, { watchFile } from "fs";
 import Web3 from "web3";
+import originalrequire from "original-require";
 import Resolver from "truffle-resolver";
 import Contracts from "truffle-workflow-compile";
 import Migrate from "truffle-migrate";
@@ -85,6 +86,25 @@ const compileContracts = function(config, test_resolver) {
   });
 };
 
+const hideCursor = () => {
+  process.stdout.write("\u001b[?25l");
+};
+
+const showCursor = () => {
+  process.stdout.write("\u001b[?25h");
+};
+
+const watch = function(config, files, callback) {
+  var options = { interval: 100 };
+  files.forEach(function(file) {
+    watchFile(file, options, function(curr, prev) {
+      if (prev.mtime < curr.mtime) {
+        callback();
+      }
+    });
+  });
+};
+
 const performDeploy = function(config, resolver) {
   return new Promise(function(resolve, reject) {
     Migrate.run(
@@ -109,23 +129,23 @@ export default async function(testPath) {
   web3.setProvider(config.provider);
 
   let mocha = new MochaParallel();
-  // let mocha = new Mocha();
+  let watchFiles = [];
+  let files = [];
 
   const stats = fs.lstatSync(testPath);
   if (stats.isFile() && testPath.substr(-3) === ".js") {
-    mocha.addFile(path.resolve(testPath));
+    files = [path.resolve(testPath)];
   } else if (stats.isDirectory()) {
-    // Add each .js file to the mocha instance
-    fs
-      .readdirSync(path.resolve(testPath))
-      .filter(function(file) {
-        // Only keep the .js files
-        return file.substr(-3) === ".js";
-      })
-      .forEach(function(file) {
-        mocha.addFile(path.join(testPath, file));
-      });
+    files = fs.readdirSync(path.resolve(testPath)).filter(function(file) {
+      // Only keep the .js files
+      return file.substr(-3) === ".js";
+    });
   }
+
+  files.forEach(function(file) {
+    delete originalrequire.cache[file];
+    watchFiles.push(path.join(config.test_directory, file));
+  });
 
   // Set accounts
   let accounts = await getAccounts(web3);
@@ -176,10 +196,57 @@ export default async function(testPath) {
     throw reason;
   });
 
-  // Run the tests.
-  mocha.run(function(failures) {
-    process.on("exit", function() {
-      process.exit(failures); // exit with non-zero status if there were failures
+  hideCursor();
+  process.on("SIGINT", () => {
+    showCursor();
+    console.log("\n");
+    process.exit(130);
+  });
+
+  let runAgain = false;
+  let runnerStub;
+
+  const loadAndRun = () => {
+    try {
+      // Add each .js file to the mocha instance
+      files.forEach(function(file) {
+        mocha.addFile(path.join(config.test_directory, file));
+      });
+      runner = new TestRunner(config);
+      runAgain = false;
+      runnerStub = mocha.run(() => {
+        runnerStub = null;
+        if (runAgain) {
+          rerun();
+        }
+      });
+    } catch (e) {
+      console.log(e.stack);
+    }
+  };
+
+  const purge = () => {
+    watchFiles.forEach(file => {
+      delete require.cache[file];
     });
+  };
+
+  loadAndRun();
+
+  const rerun = () => {
+    purge();
+    mocha.suite = mocha.suite.clone();
+    mocha.suite.ctx = new MochaParallel.Context();
+    loadAndRun();
+  };
+
+  watch(config, watchFiles, () => {
+    console.log("Change detected");
+    runAgain = true;
+    if (runnerStub) {
+      runnerStub.abort();
+    } else {
+      rerun();
+    }
   });
 }

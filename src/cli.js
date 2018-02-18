@@ -12,4 +12,3 @@ program.arguments("[path]").action(function(path) {
 program.parse(process.argv);
 
 espresso(testPath);
-
