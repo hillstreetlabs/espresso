@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+require("babel-core/register");
+require("babel-polyfill");
+
 let program = require("commander");
 let espresso = require("./lib");
 
@@ -12,5 +15,3 @@ program.arguments("[path]").action(function(path) {
 program.parse(process.argv);
 
 espresso.run(testPath);
-
-// espresso.watch();
