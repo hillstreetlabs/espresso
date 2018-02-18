@@ -37,10 +37,10 @@ Ethereum solidity development is still in it's early phase. But if you've ever w
 
 espresso is a testing framework for Solidity smart contracts, written in Javascript. Features include:
 
-* ✅ Test parallelization
-* ✅ Hot-reloading and running of tests (with a --watch flag)
-* ✅ Isolated test RPC, so you don't have to have an RPC like ganache running or muddy your development RPC
-* ✅ Backwards compatibility with truffle test
+- ✅ Test parallelization
+- ✅ Hot-reloading and running of tests (with a --watch flag)
+- ✅ Isolated test RPC, so you don't have to have an RPC like ganache running or muddy your development RPC
+- ✅ Backwards compatibility with truffle test
 
 ### How we built it
 
@@ -58,3 +58,7 @@ To list a few:
 ### Accomplishments that we're proud of
 
 Successfully compiling and running one folder of Open Zeppelin tests—and doing it twice as fast as Open Zeppelin's testing framework.
+
+### Performance
+
+We're just starting to do benchmarking, but the performance thus far has been promising. On a demo folder of Open Zeppelin tests, espresso compiled Solidity, deployed to a test RPC and ran the tests almost twice as fast as Open Zeppelin's implementation of Truffle. Specifically, both successfully completed the 90 tests, with **espresso taking 8.577s and Truffle taking 14.666s**.
