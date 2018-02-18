@@ -4,17 +4,17 @@ import { Config } from "../truffle/helpers";
 const getTestConfig = function() {
   let config = Config.detect({
     workingDirectory: path.resolve("."),
-    buildFolder: ".test"
+    buildFolder: ".test",
+    networks: {
+      test: {
+        host: "localhost",
+        port: 8545,
+        network_id: "*"
+      }
+    }
   });
 
-  // if "development" exists, default to using that for testing
-  if (!config.network && config.networks.development) {
-    config.network = "development";
-  }
-
-  if (!config.network) {
-    config.network = "test";
-  }
+  config.network = "test";
 
   return config;
 };
