@@ -13,6 +13,9 @@ _______   ________  ________  ________  _______   ________   ________  ________
 
 Created by [@mertcelebi](https://github.com/mertcelebi) and [@pfletcherhill](https://github.com/pfletcherhill) at [ETHDenver](https://ethdenver.com/).
 
+## Hot-reloading :fire:
+![Hot-reloading example](https://thumbs.gfycat.com/HarmoniousAnxiousGnatcatcher-size_restricted.gif)
+
 ### Installation
 
 Install packages and run the build script (we prefer using [yarn](https://yarnpkg.com/en/))
@@ -24,8 +27,7 @@ yarn add espresso-tests --dev
 ### Running tests
 
 ```
-cd /path/to/sample_project
-espresso
+espresso [--watch]
 ```
 
 ### Inspiration
