@@ -52,7 +52,7 @@ export default async function(testPath, watchOption) {
 
   // Set test files
   let watchFiles = [];
-  let files = parseTestFiles(testPath);
+  let files = parseTestFiles(config, testPath);
   files.forEach(function(file) {
     delete originalrequire.cache[file];
     watchFiles.push(path.join(config.test_directory, file));
@@ -104,7 +104,7 @@ export default async function(testPath, watchOption) {
       try {
         // Add each .js file to the mocha instance
         files.forEach(function(file) {
-          mocha.addFile(path.join(config.test_directory, file));
+          mocha.addFile(file);
         });
         runner = new TestRunner(config);
         runAgain = false;
@@ -150,7 +150,7 @@ export default async function(testPath, watchOption) {
   } else {
     // Run tests only once.
     files.forEach(function(file) {
-      mocha.addFile(path.join(config.test_directory, file));
+      mocha.addFile(file);
     });
     mocha.run(function(failures) {
       process.on("exit", function() {
