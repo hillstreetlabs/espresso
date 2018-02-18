@@ -24,27 +24,31 @@ export default class Espresso {
     this.watch = options.watch;
     this.reporter = options.reporter;
     this.server = new Server();
-    this.mocha = new MochaParallel();
+    // this.mocha = new MochaParallel();
+    this.mocha = new Mocha();
   }
 
   @computed
   get config() {
     let _config = new Config();
-    _config.merge({
+    try {
+      _config = Config.detect({ workingDirectory: path.resolve(".") });
+    } catch (err) {
+      console.log("Error", err);
+    }
+    _config.with({
       workingDirectory: path.resolve("."),
       buildFolder: ".test",
-      networks: {
-        test: {
-          host: "localhost",
-          port: 8545,
-          network_id: "*",
-          from: this.server.accounts[0]
-        }
-      },
-      resolver: this.resolver,
+      resolver: this.resolver
+    });
+    let networks = _config.networks || {};
+    _config.with({
+      networks: Object.assign(networks, {
+        test: { host: "localhost", port: 8545, network_id: "*" }
+      }),
       network: "test"
     });
-    _config.merge({
+    _config.with({
       artifactor: new Artifactor(_config.contracts_build_directory)
     });
     return _config;
@@ -114,12 +118,11 @@ export default class Espresso {
     });
 
     // Compile and deploy contracts
-    let smartContracts = await this.server.compile(
-      this.config.with({ resolver: this.testResolver })
-    );
-    await this.server.migrate(
-      this.config.with({ resolver: this.testResolver })
-    );
+    let testConfig = this.config.with({ resolver: this.testResolver });
+    console.log("testConfig", testConfig.network_config);
+    let smartContracts = await this.server.compile(testConfig);
+    let migrations = await this.server.migrate(testConfig);
+    console.log("DOne smart contracts and migrations");
 
     // Set test runner.
     this.testRunner = new TestRunner(this.config);
