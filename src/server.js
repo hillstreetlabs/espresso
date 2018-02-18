@@ -36,7 +36,7 @@ export default class Server {
   }
 
   compile(_config) {
-    console.log("Start compile!", _config.resolver.test_directory);
+    console.log("Start compile!");
     return new Promise(function(resolve, reject) {
       Profiler.updated(_config, (err, updated) => {
         if (err) return reject(err);
