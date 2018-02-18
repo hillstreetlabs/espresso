@@ -19,7 +19,7 @@ var _mini2 = _interopRequireDefault(_mini);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-let testPath = "./test";
+let testPath = "test/";
 let reporter = "";
 
 _commander2.default.arguments("[path]").option("-w, --watch", "Watch tests").option("-v, --verbose", "Verbose tests").option("-f, --fun", "Fun tests").action(function (path) {

@@ -66,7 +66,7 @@ export default class Espresso {
         return file.substr(-3) === ".js";
       });
       temp.forEach(file => {
-        files.push(path.join(this.testPath, file));
+        files.push(path.join(path.resolve(this.testPath), file));
       });
     }
     return files;
