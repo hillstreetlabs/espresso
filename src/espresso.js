@@ -121,7 +121,7 @@ const performDeploy = function(config, resolver) {
   });
 };
 
-export default async function(testPath) {
+export default async function(testPath, watch) {
   let config = getConfig();
 
   let web3 = new Web3();
