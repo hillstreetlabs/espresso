@@ -5,10 +5,15 @@ import espresso from "./espresso";
 
 let testPath = "./test";
 
-program.arguments("[path]").action(function(path) {
-  testPath = path;
-});
+program
+  .arguments("[path]")
+  .option("-w, --watch", "Watch tests")
+  .action(function(path) {
+    testPath = path;
+  });
 
 program.parse(process.argv);
 
-espresso(testPath);
+console.log(program.watch);
+
+espresso(testPath, program.watch);
