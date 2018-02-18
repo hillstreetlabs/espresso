@@ -2,7 +2,7 @@
 
 import program from "commander";
 import Espresso from "./espresso";
-import MyReporter from "./reporters/mini";
+import MiniReporter from "./reporters/mini";
 
 let testPath = "./test";
 let reporter = "";
@@ -22,7 +22,7 @@ if (program.verbose) {
 } else if (program.fun) {
   reporter = "nyan";
 } else {
-  reporter = MyReporter;
+  reporter = MiniReporter;
 }
 
 const instance = new Espresso({
