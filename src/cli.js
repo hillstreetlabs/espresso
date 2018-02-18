@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import program from "commander";
-import espresso from "./espresso";
+import Espresso from "./espresso";
 
 let testPath = "./test";
 
@@ -14,4 +14,11 @@ program
 
 program.parse(process.argv);
 
-espresso(testPath, program.watch);
+const instance = new Espresso({
+  testPath,
+  watch: program.watch
+});
+
+global = Object.assign(global, instance.globalScope);
+
+instance.run();
