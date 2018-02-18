@@ -2,6 +2,7 @@ import Web3 from "web3";
 import path from "path";
 import fs, { watchFile } from "fs";
 import { computed } from "mobx";
+import chai from "chai";
 import originalrequire from "original-require";
 import MochaParallel from "mocha-parallel-tests";
 import Mocha from "mocha";
@@ -25,28 +26,32 @@ export default class Espresso {
     this.reporter = options.reporter;
     this.server = new Server();
     this.mocha = new MochaParallel();
+    //this.mocha = new Mocha();
   }
 
   @computed
   get config() {
     let _config = new Config();
-    _config.merge({
-      workingDirectory: path.resolve("."),
-      buildFolder: ".test",
-      networks: {
-        test: {
-          host: "localhost",
-          port: 8545,
-          network_id: "*",
-          from: this.server.accounts[0]
-        }
-      },
-      resolver: this.resolver,
-      network: "test"
+    try {
+      _config = Config.detect({ workingDirectory: path.resolve(".") });
+    } catch (err) {
+      console.log("Error", err);
+    }
+    _config.workingDirectory = path.resolve(".");
+    _config.buildFolder = ".test";
+    _config.resolver = _config.resolver || this.resolver;
+    let networks = _config.networks || {};
+    _config.networks = Object.assign(networks, {
+      test: {
+        host: "localhost",
+        port: 8545,
+        network_id: "*",
+        from: this.server.accounts[0],
+        provider: this.server.provider
+      }
     });
-    _config.merge({
-      artifactor: new Artifactor(_config.contracts_build_directory)
-    });
+    _config.network = "test";
+    _config.artifactor = new Artifactor(_config.contracts_build_directory);
     return _config;
   }
 
@@ -61,7 +66,7 @@ export default class Espresso {
         return file.substr(-3) === ".js";
       });
       temp.forEach(file => {
-        files.push(path.join(this.config.test_directory, file));
+        files.push(path.join(this.testPath, file));
       });
     }
     return files;
@@ -89,6 +94,8 @@ export default class Espresso {
       });
     };
 
+    scope.assert = chai.assert;
+
     scope.web3 = this.server.web3;
 
     return scope;
@@ -114,12 +121,10 @@ export default class Espresso {
     });
 
     // Compile and deploy contracts
-    let smartContracts = await this.server.compile(
-      this.config.with({ resolver: this.testResolver })
-    );
-    await this.server.migrate(
-      this.config.with({ resolver: this.testResolver })
-    );
+    let testConfig = this.config.with({ resolver: this.testResolver });
+    let smartContracts = await this.server.compile(testConfig);
+    let migrations = await this.server.migrate(testConfig);
+    console.log("Compiled and migrated!");
 
     // Set test runner.
     this.testRunner = new TestRunner(this.config);

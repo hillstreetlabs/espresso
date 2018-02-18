@@ -19,6 +19,10 @@ export default class Server {
     this.accounts = await this.getAccounts();
   }
 
+  get provider() {
+    return this.ganache.provider;
+  }
+
   getAccounts() {
     return new Promise((resolve, reject) => {
       this.web3.eth.getAccounts((err, res) => {
@@ -32,6 +36,7 @@ export default class Server {
   }
 
   compile(_config) {
+    console.log("Start compile!");
     return new Promise(function(resolve, reject) {
       Profiler.updated(_config, (err, updated) => {
         if (err) return reject(err);
@@ -54,6 +59,7 @@ export default class Server {
   }
 
   migrate(_config) {
+    console.log("Start migrate!");
     return new Promise((resolve, reject) => {
       let config = Object.assign(_config, {
         reset: true,
