@@ -4,7 +4,7 @@ require("babel-core/register");
 require("babel-polyfill");
 
 let program = require("commander");
-let espresso = require("./final");
+let espresso = require("./lib");
 
 let testPath = "./test";
 
