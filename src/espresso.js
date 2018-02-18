@@ -25,8 +25,8 @@ export default class Espresso {
     this.watch = options.watch;
     this.reporter = options.reporter;
     this.server = new Server();
-    // this.mocha = new MochaParallel();
-    this.mocha = new Mocha();
+    this.mocha = new MochaParallel();
+    //this.mocha = new Mocha();
   }
 
   @computed
