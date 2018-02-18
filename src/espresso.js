@@ -2,6 +2,7 @@ import Web3 from "web3";
 import path from "path";
 import fs, { watchFile } from "fs";
 import { computed } from "mobx";
+import chai from "chai";
 import originalrequire from "original-require";
 import MochaParallel from "mocha-parallel-tests";
 import Mocha from "mocha";
@@ -36,21 +37,21 @@ export default class Espresso {
     } catch (err) {
       console.log("Error", err);
     }
-    _config.with({
-      workingDirectory: path.resolve("."),
-      buildFolder: ".test",
-      resolver: this.resolver
-    });
+    _config.workingDirectory = path.resolve(".");
+    _config.buildFolder = ".test";
+    _config.resolver = _config.resolver || this.resolver;
     let networks = _config.networks || {};
-    _config.with({
-      networks: Object.assign(networks, {
-        test: { host: "localhost", port: 8545, network_id: "*" }
-      }),
-      network: "test"
+    _config.networks = Object.assign(networks, {
+      test: {
+        host: "localhost",
+        port: 8545,
+        network_id: "*",
+        from: this.server.accounts[0],
+        provider: this.server.provider
+      }
     });
-    _config.with({
-      artifactor: new Artifactor(_config.contracts_build_directory)
-    });
+    _config.network = "test";
+    _config.artifactor = new Artifactor(_config.contracts_build_directory);
     return _config;
   }
 
@@ -65,7 +66,7 @@ export default class Espresso {
         return file.substr(-3) === ".js";
       });
       temp.forEach(file => {
-        files.push(path.join(this.config.test_directory, file));
+        files.push(path.join(this.testPath, file));
       });
     }
     return files;
@@ -93,6 +94,8 @@ export default class Espresso {
       });
     };
 
+    scope.assert = chai.assert;
+
     scope.web3 = this.server.web3;
 
     return scope;
@@ -119,10 +122,9 @@ export default class Espresso {
 
     // Compile and deploy contracts
     let testConfig = this.config.with({ resolver: this.testResolver });
-    console.log("testConfig", testConfig.network_config);
     let smartContracts = await this.server.compile(testConfig);
     let migrations = await this.server.migrate(testConfig);
-    console.log("DOne smart contracts and migrations");
+    console.log("Compiled and migrated!");
 
     // Set test runner.
     this.testRunner = new TestRunner(this.config);
