@@ -135,7 +135,7 @@ let Espresso = (_class = class Espresso {
         return file.substr(-3) === ".js";
       });
       temp.forEach(file => {
-        files.push(_path2.default.join(this.testPath, file));
+        files.push(_path2.default.join(_path2.default.resolve(this.testPath), file));
       });
     }
     return files;

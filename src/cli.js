@@ -4,7 +4,7 @@ import program from "commander";
 import Espresso from "./espresso";
 import MiniReporter from "./reporters/mini";
 
-let testPath = "./test";
+let testPath = "test/";
 let reporter = "";
 
 program
