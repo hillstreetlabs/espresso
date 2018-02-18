@@ -11,9 +11,7 @@ var _ = require("lodash");
 var async = require("async");
 var fs = require("fs");
 
-function TestRunner(options) {
-  options = options || {};
-
+function TestRunner(options = {}) {
   expect.options(options, [
     "resolver",
     "provider",
@@ -113,8 +111,6 @@ TestRunner.prototype.initialize = function(callback) {
 };
 
 TestRunner.prototype.deploy = function(callback) {
-  console.log("RUNNER deploy");
-
   Migrate.run(
     this.config.with({
       reset: true,
@@ -125,8 +121,6 @@ TestRunner.prototype.deploy = function(callback) {
 };
 
 TestRunner.prototype.resetState = function(callback) {
-  console.log("RUNNER resetState");
-
   var self = this;
   if (this.can_snapshot) {
     this.revert(this.initial_snapshot, function(err) {
@@ -143,8 +137,6 @@ TestRunner.prototype.resetState = function(callback) {
 };
 
 TestRunner.prototype.startTest = function(mocha, callback) {
-  console.log("RUNNER startTest");
-
   var self = this;
   this.web3.eth.getBlockNumber(function(err, result) {
     if (err) return callback(err);
@@ -159,17 +151,12 @@ TestRunner.prototype.startTest = function(mocha, callback) {
 };
 
 TestRunner.prototype.endTest = function(mocha, callback) {
-  console.log("RUNNER endTest");
-
   var self = this;
 
-  if (mocha.currentTest.state != "failed") {
-    return callback();
-  }
+  if (mocha.currentTest.state != "failed") return callback();
 
   var logs = [];
 
-  // There's no API for eth_getLogs?
   this.rpc(
     "eth_getLogs",
     [

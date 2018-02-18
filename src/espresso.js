@@ -34,7 +34,7 @@ const mochaTemplate = function(runner, tests, accounts) {
   tests(accounts);
 };
 
-export default async function(testPath, watchOption) {
+export default async function(testPath, watchOption, reporterOption) {
   let config = getTestConfig();
   let mocha = new MochaParallel();
 
@@ -44,7 +44,7 @@ export default async function(testPath, watchOption) {
     if (err) {
       console.log("Error: ", err);
     } else {
-      console.log("Launched!", chain);
+      console.log("Launched Ganache!");
     }
   });
 
@@ -121,7 +121,7 @@ export default async function(testPath, watchOption) {
         runner = new TestRunner(config);
         runAgain = false;
 
-        runnerStub = mocha.run(() => {
+        runnerStub = mocha.reporter(reporterOption).run(() => {
           runnerStub = null;
           if (runAgain) rerun();
         });
@@ -166,7 +166,7 @@ export default async function(testPath, watchOption) {
     files.forEach(function(file) {
       mocha.addFile(file);
     });
-    mocha.run(function(failures) {
+    mocha.reporter(reporterOption).run(function(failures) {
       process.on("exit", function() {
         process.exit(failures);
       });
