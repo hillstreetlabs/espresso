@@ -1,4 +1,5 @@
 import Web3 from "web3";
+import Ganache from "ganache-core";
 import path from "path";
 import fs, { watchFile } from "fs";
 import originalrequire from "original-require";
@@ -36,6 +37,17 @@ const mochaTemplate = function(runner, tests, accounts) {
 export default async function(testPath, watchOption) {
   let config = getTestConfig();
   let mocha = new MochaParallel();
+
+  // Launch server
+  let server = Ganache.server();
+  await server.listen(8545, (err, chain) => {
+    if (err) {
+      console.log("Error: ", err);
+    } else {
+      console.log("Launched!", chain);
+    }
+  });
+
   let web3 = new Web3();
   web3.setProvider(config.provider);
   global.web3 = web3;
@@ -55,7 +67,7 @@ export default async function(testPath, watchOption) {
   let files = parseTestFiles(config, testPath);
   files.forEach(function(file) {
     delete originalrequire.cache[file];
-    watchFiles.push(path.join(config.test_directory, file));
+    watchFiles.push(file);
   });
 
   // Set testers
@@ -156,6 +168,7 @@ export default async function(testPath, watchOption) {
       process.on("exit", function() {
         process.exit(failures);
       });
+      server.close();
     });
   }
 
