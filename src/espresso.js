@@ -1,14 +1,16 @@
-import Mocha from "mocha";
-import MochaParallel from "mocha-parallel-tests";
+import Web3 from "web3";
 import path from "path";
 import fs, { watchFile } from "fs";
-import Web3 from "web3";
 import originalrequire from "original-require";
-import Resolver from "truffle-resolver";
-import Contracts from "truffle-workflow-compile";
-import Migrate from "truffle-migrate";
-import Profiler from "truffle-compile/profiler.js";
-import { Config, TestResolver, TestSource, TestRunner } from "./testing";
+import MochaParallel from "mocha-parallel-tests";
+
+import { Resolver, Contracts, Migrate, Profiler } from "./truffle/external";
+import {
+  Config,
+  TestResolver,
+  TestSource,
+  TestRunner
+} from "./truffle/helpers";
 
 const getConfig = function() {
   let config = Config.detect({
@@ -181,13 +183,13 @@ export default async function(testPath, watchOption) {
   };
 
   global.contract = function(name, tests) {
-    Mocha.describe("Contract: " + name, function() {
+    MochaParallel.describe("Contract: " + name, function() {
       mochaTemplate.bind(this, runner, tests, accounts)();
     });
   };
 
   global.contract.only = function(name, tests) {
-    Mocha.describe.only("Contract: " + name, function() {
+    MochaParallel.describe.only("Contract: " + name, function() {
       mochaTemplate.bind(this, runner, tests, accounts)();
     });
   };
