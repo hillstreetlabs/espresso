@@ -67,7 +67,7 @@ export default async function(testPath, watchOption) {
   let files = parseTestFiles(testPath);
   files.forEach(function(file) {
     delete originalrequire.cache[file];
-    watchFiles.push(path.join(config.test_directory, file));
+    watchFiles.push(file);
   });
 
   // Set testers
