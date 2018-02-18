@@ -144,7 +144,6 @@ export default class Espresso {
           });
           this.testRunner = new TestRunner(this.config);
           runAgain = false;
-
           runnerStub = this.mocha.reporter(this.reporter).run(() => {
             runnerStub = null;
             if (runAgain) rerun();
@@ -207,7 +206,7 @@ export default class Espresso {
       this.testFiles.forEach(file => {
         this.mocha.addFile(file);
       });
-      this.mocha.run(failures => {
+      this.mocha.reporter(this.reporter).run(failures => {
         process.on("exit", () => {
           process.exit(failures);
         });
