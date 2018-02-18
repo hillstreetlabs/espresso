@@ -1,14 +1,15 @@
 import { showCursor, hideCursor } from "./cursor";
-import { getConfig, getAccounts } from "./config";
-import { compileContracts, performDeploy } from "./config";
-import { watch } from "./files";
+import { getTestConfig, getAccounts } from "./config";
+import { compileContracts, performDeploy } from "./contract";
+import { watch, parseTestFiles } from "./files";
 
 export {
   showCursor,
   hideCursor,
-  getConfig,
+  getTestConfig,
   getAccounts,
   compileContracts,
   performDeploy,
-  watch
+  watch,
+  parseTestFiles
 };
