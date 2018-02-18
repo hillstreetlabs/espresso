@@ -83,8 +83,6 @@ export default async function(testPath, watchOption, reporterOption) {
   let smartContracts = await compileContracts(config, testResolver);
   await performDeploy(config, testResolver);
 
-  console.log(smartContracts);
-
   // Set test runner.
   let runner = new TestRunner(config);
 

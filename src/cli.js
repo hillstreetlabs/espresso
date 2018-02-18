@@ -2,6 +2,7 @@
 
 import program from "commander";
 import espresso from "./espresso";
+import MyReporter from "./reporters/mini";
 
 let testPath = "./test";
 let reporter = "";
@@ -21,7 +22,7 @@ if (program.verbose) {
 } else if (program.fun) {
   reporter = "nyan";
 } else {
-  reporter = "progress";
+  reporter = MyReporter;
 }
 
 espresso(testPath, program.watch, reporter);
