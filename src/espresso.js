@@ -4,43 +4,15 @@ import fs, { watchFile } from "fs";
 import originalrequire from "original-require";
 import MochaParallel from "mocha-parallel-tests";
 
-import { Resolver, Contracts, Migrate, Profiler } from "./truffle/external";
+import { Resolver } from "./truffle/external";
+import { TestResolver, TestSource, TestRunner } from "./truffle/helpers";
 import {
-  Config,
-  TestResolver,
-  TestSource,
-  TestRunner
-} from "./truffle/helpers";
-
-const getConfig = function() {
-  let config = Config.detect({
-    workingDirectory: path.resolve("."),
-    buildFolder: ".test"
-  });
-
-  // if "development" exists, default to using that for testing
-  if (!config.network && config.networks.development) {
-    config.network = "development";
-  }
-
-  if (!config.network) {
-    config.network = "test";
-  }
-
-  return config;
-};
-
-const getAccounts = function(web3) {
-  return new Promise(function(resolve, reject) {
-    web3.eth.getAccounts(function(err, res) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(res);
-      }
-    });
-  });
-};
+  hideCursor,
+  showCursor,
+  getAccounts,
+  getConfig,
+  watch
+} from "./helpers";
 
 const mochaTemplate = function(runner, tests, accounts) {
   before("prepare suite", function(done) {
@@ -56,71 +28,6 @@ const mochaTemplate = function(runner, tests, accounts) {
   });
 
   tests(accounts);
-};
-
-const compileContracts = function(config, test_resolver) {
-  return new Promise(function(resolve, reject) {
-    Profiler.updated(
-      config.with({
-        resolver: test_resolver
-      }),
-      function(err, updated) {
-        if (err) return reject(err);
-
-        updated = updated || [];
-
-        // Compile project contracts and test contracts
-        Contracts.compile(
-          config.with({
-            all: config.compileAll === true,
-            files: updated,
-            resolver: test_resolver,
-            quiet: false,
-            quietWrite: true
-          }),
-          function(err, abstractions, paths) {
-            if (err) return reject(err);
-            resolve(paths);
-          }
-        );
-      }
-    );
-  });
-};
-
-const hideCursor = () => {
-  process.stdout.write("\u001b[?25l");
-};
-
-const showCursor = () => {
-  process.stdout.write("\u001b[?25h");
-};
-
-const watch = (config, files, callback) => {
-  let options = { interval: 100 };
-  files.forEach(function(file) {
-    watchFile(file, options, function(curr, prev) {
-      if (prev.mtime < curr.mtime) {
-        callback();
-      }
-    });
-  });
-};
-
-const performDeploy = function(config, resolver) {
-  return new Promise(function(resolve, reject) {
-    Migrate.run(
-      config.with({
-        reset: true,
-        resolver: resolver,
-        quiet: true
-      }),
-      function(err) {
-        if (err) return reject(err);
-        resolve();
-      }
-    );
-  });
 };
 
 export default async function(testPath, watchOption) {
