@@ -80,8 +80,10 @@ export default async function(testPath, watchOption, reporterOption) {
   testResolver.cache_on = false;
 
   // Compile and deploy contracts
-  await compileContracts(config, testResolver);
+  let smartContracts = await compileContracts(config, testResolver);
   await performDeploy(config, testResolver);
+
+  console.log(smartContracts);
 
   // Set test runner.
   let runner = new TestRunner(config);
@@ -144,12 +146,24 @@ export default async function(testPath, watchOption, reporterOption) {
     };
 
     loadAndRun();
-    watch(config, watchFiles, () => {
+    watch(config, watchFiles, async function() {
       runAgain = true;
       if (runnerStub) {
         runnerStub.abort();
         server.close();
       } else {
+        rerun();
+      }
+    });
+
+    watch(config, smartContracts, async function() {
+      runAgain = true;
+      if (runnerStub) {
+        runnerStub.abort();
+        server.close();
+      } else {
+        await compileContracts(config, testResolver);
+        await performDeploy(config, testResolver);
         rerun();
       }
     });

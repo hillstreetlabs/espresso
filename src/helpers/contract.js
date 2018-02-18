@@ -7,6 +7,7 @@ const compileContracts = function(config, testResolver) {
         resolver: testResolver
       }),
       function(err, updated) {
+        console.log(updated);
         if (err) return reject(err);
 
         updated = updated || [];
