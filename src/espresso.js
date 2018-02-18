@@ -148,6 +148,7 @@ export default async function(testPath, watchOption) {
       runAgain = true;
       if (runnerStub) {
         runnerStub.abort();
+        server.close();
       } else {
         rerun();
       }
@@ -156,6 +157,7 @@ export default async function(testPath, watchOption) {
     // User ends the test
     process.on("SIGINT", () => {
       showCursor();
+      server.close();
       console.log("\n");
       process.exit(130);
     });
