@@ -2,13 +2,17 @@
   "name": "espresso",
   "version": "1.0.0",
   "description": "Speedy testing framework for Solidity smart contracts",
-  "main": "index.js",
   "author": "Hill Street Labs",
   "license": "MIT",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "npx babel src --out-dir dist --watch"
+  },
   "dependencies": {
     "chai": "^4.1.2",
     "commander": "^2.14.1",
     "mocha-parallel-tests": "^1.2.10",
+    "npx": "^9.7.1",
     "truffle": "^4.0.5",
     "truffle-compile": "^3.0.5",
     "truffle-config": "^1.0.4",
@@ -18,16 +22,12 @@
     "web3": "^0.20.4"
   },
   "bin": {
-    "espresso": "./cli.js"
+    "espresso": "./dist/cli.js"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.2",
-    "babel-polyfill": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.1",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-stage-0": "^6.24.1",
-    "babel-register": "^6.26.0"
+    "cross-env": "^5.1.3"
   }
 }

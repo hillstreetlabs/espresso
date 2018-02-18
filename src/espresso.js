@@ -1,22 +1,14 @@
-let Mocha = require("mocha");
-// import Mocha from "mocha";
-let MochaParallel = require("mocha-parallel-tests");
-let path = require("path");
-let fs = require("fs");
-var watchFile = require("fs").watchFile;
-let Web3 = require("web3");
-
-// Truffle files
-let Resolver = require("truffle-resolver");
-let Contracts = require("truffle-workflow-compile");
-let Migrate = require("truffle-migrate");
-let Profiler = require("truffle-compile/profiler.js");
-
-// Local truffle files
-let Config = require("./testing/config");
-let TestResolver = require("./testing/testresolver");
-let TestSource = require("./testing/testsource");
-let TestRunner = require("./testing/testrunner");
+import Mocha from "mocha";
+import MochaParallel from "mocha-parallel-tests";
+import path from "path";
+import fs, { watchFile } from "fs";
+import Web3 from "web3";
+import originalrequire from "original-require";
+import Resolver from "truffle-resolver";
+import Contracts from "truffle-workflow-compile";
+import Migrate from "truffle-migrate";
+import Profiler from "truffle-compile/profiler.js";
+import { Config, TestResolver, TestSource, TestRunner } from "./testing";
 
 const getConfig = function() {
   let config = Config.detect({
@@ -129,7 +121,7 @@ const performDeploy = function(config, resolver) {
   });
 };
 
-const run = async function(testPath) {
+export default async function(testPath, watch) {
   let config = getConfig();
 
   let web3 = new Web3();
@@ -151,6 +143,7 @@ const run = async function(testPath) {
   }
 
   files.forEach(function(file) {
+    delete originalrequire.cache[file];
     watchFiles.push(path.join(config.test_directory, file));
   });
 
@@ -211,8 +204,9 @@ const run = async function(testPath) {
   });
 
   let runAgain = false;
+  let runnerStub;
 
-  loadAndRun = () => {
+  const loadAndRun = () => {
     try {
       // Add each .js file to the mocha instance
       files.forEach(function(file) {
@@ -231,7 +225,7 @@ const run = async function(testPath) {
     }
   };
 
-  purge = () => {
+  const purge = () => {
     watchFiles.forEach(file => {
       delete require.cache[file];
     });
@@ -239,7 +233,7 @@ const run = async function(testPath) {
 
   loadAndRun();
 
-  rerun = () => {
+  const rerun = () => {
     purge();
     mocha.suite = mocha.suite.clone();
     mocha.suite.ctx = new MochaParallel.Context();
@@ -255,6 +249,4 @@ const run = async function(testPath) {
       rerun();
     }
   });
-};
-
-module.exports = { run: run };
+}
