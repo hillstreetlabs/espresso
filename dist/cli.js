@@ -26,7 +26,9 @@ _commander2.default.arguments("[path]").option("-w, --watch", "Watch tests").opt
   testPath = path;
 }).parse(process.argv);
 
-if (_commander2.default.verbose) {
+if (_commander2.default.watch) {
+  reporter = _mini2.default;
+} else if (_commander2.default.verbose) {
   reporter = "mocha-better-spec-reporter";
 } else if (_commander2.default.fun) {
   reporter = "nyan";

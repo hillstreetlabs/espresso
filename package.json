@@ -1,6 +1,6 @@
 {
   "name": "espresso-tests",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Speedy, parallelized, hot-reloading solidity test framework",
   "author": "Hill Street Labs",
   "license": "MIT",
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "chai": "^4.1.2",
+    "colors": "^1.1.2",
     "commander": "^2.14.1",
     "mocha-parallel-tests": "^1.2.10",
     "npx": "^9.7.1",
@@ -33,7 +34,7 @@
     "ganache-core": "^2.0.2",
     "mobx": "^3.5.1",
     "mocha": "^5.0.1",
-    "truffle-artifactor": "^3.0.3",
-    "mocha-better-spec-reporter": "^3.1.0"
+    "mocha-better-spec-reporter": "^3.1.0",
+    "truffle-artifactor": "^3.0.3"
   }
 }

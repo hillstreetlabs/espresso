@@ -1,4 +1,5 @@
 var mocha = require("mocha");
+var colors = require("colors/safe");
 module.exports = MiniReporter;
 
 function MiniReporter(runner) {
@@ -8,18 +9,22 @@ function MiniReporter(runner) {
 
   runner.on("pass", function(test) {
     passes++;
-    console.log("pass: %s", test.fullTitle());
+    console.log(colors.white.bgGreen(" pass "), test.fullTitle());
   });
 
   runner.on("fail", function(test, err) {
     failures++;
-    console.log("fail: %s -- error: %s", test.fullTitle(), err.message);
+    console.log(
+      colors.white.bgRed(" fail "),
+      " -- error: ",
+      test.fullTitle(),
+      err.message
+    );
   });
 
   runner.on("end", function() {
-    console.log("end: %d/%d", passes, passes + failures);
+    console.log("end: %d/%d tests passing", passes, passes + failures);
     passes = 0;
     failures = 0;
   });
 }
-

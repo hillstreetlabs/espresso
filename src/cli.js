@@ -17,7 +17,9 @@ program
   })
   .parse(process.argv);
 
-if (program.verbose) {
+if (program.watch) {
+  reporter = MiniReporter;
+} else if (program.verbose) {
   reporter = "mocha-better-spec-reporter";
 } else if (program.fun) {
   reporter = "nyan";
