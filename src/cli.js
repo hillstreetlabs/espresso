@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import program from "commander";
-import espresso from "./espresso";
+import Espresso from "./espresso";
 import MyReporter from "./reporters/mini";
 
 let testPath = "./test";
@@ -25,4 +25,12 @@ if (program.verbose) {
   reporter = MyReporter;
 }
 
-espresso(testPath, program.watch, reporter);
+const instance = new Espresso({
+  testPath,
+  watch: program.watch,
+  reporter: reporter
+});
+
+global = Object.assign(global, instance.globalScope);
+
+instance.run();
