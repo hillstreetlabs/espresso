@@ -13,7 +13,9 @@ import {
   getAccounts,
   getTestConfig,
   watch,
-  parseTestFiles
+  parseTestFiles,
+  compileContracts,
+  performDeploy
 } from "./helpers";
 
 const mochaTemplate = function(runner, tests, accounts) {
@@ -83,6 +85,25 @@ export default async function(testPath, watchOption) {
 
   // Set test runner.
   let runner = new TestRunner(config);
+
+  // Set add-ons for smart contract testing
+  global.artifacts = {
+    require: function(import_path) {
+      return testResolver.require(import_path);
+    }
+  };
+
+  global.contract = function(name, tests) {
+    MochaParallel.describe("Contract: " + name, function() {
+      mochaTemplate.bind(this, runner, tests, accounts)();
+    });
+  };
+
+  global.contract.only = function(name, tests) {
+    MochaParallel.describe.only("Contract: " + name, function() {
+      mochaTemplate.bind(this, runner, tests, accounts)();
+    });
+  };
 
   // Listen for changes in the test files
   if (watchOption === true) {
@@ -154,23 +175,4 @@ export default async function(testPath, watchOption) {
   process.on("unhandledRejection", function(reason, p) {
     throw reason;
   });
-
-  // Set add-ons for smart contract testing
-  global.artifacts = {
-    require: function(import_path) {
-      return testResolver.require(import_path);
-    }
-  };
-
-  global.contract = function(name, tests) {
-    MochaParallel.describe("Contract: " + name, function() {
-      mochaTemplate.bind(this, runner, tests, accounts)();
-    });
-  };
-
-  global.contract.only = function(name, tests) {
-    MochaParallel.describe.only("Contract: " + name, function() {
-      mochaTemplate.bind(this, runner, tests, accounts)();
-    });
-  };
 }

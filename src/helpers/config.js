@@ -1,3 +1,4 @@
+import path from "path";
 import { Config } from "../truffle/helpers";
 
 const getTestConfig = function() {
