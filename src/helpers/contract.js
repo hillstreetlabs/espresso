@@ -1,10 +1,10 @@
-import { Profiler, Contracts, Migrate } from "../truffle/helpers";
+import { Profiler, Contracts, Migrate } from "../truffle/external";
 
-const compileContracts = function(config, test_resolver) {
+const compileContracts = function(config, testResolver) {
   return new Promise(function(resolve, reject) {
     Profiler.updated(
       config.with({
-        resolver: test_resolver
+        resolver: testResolver
       }),
       function(err, updated) {
         if (err) return reject(err);
@@ -16,7 +16,7 @@ const compileContracts = function(config, test_resolver) {
           config.with({
             all: config.compileAll === true,
             files: updated,
-            resolver: test_resolver,
+            resolver: testResolver,
             quiet: false,
             quietWrite: true
           }),

@@ -1,3 +1,4 @@
+import path from "path";
 import fs, { watchFile } from "fs";
 
 const watch = (config, files, callback) => {
@@ -11,15 +12,17 @@ const watch = (config, files, callback) => {
   });
 };
 
-const parseTestFiles = path => {
-  const stats = fs.lstatSync(path);
+const parseTestFiles = testPath => {
+  let files = [];
+  const stats = fs.lstatSync(testPath);
   if (stats.isFile() && path.substr(-3) === ".js") {
-    files = [path.resolve(path)];
+    files = [path.resolve(testPath)];
   } else if (stats.isDirectory()) {
-    files = fs.readdirSync(path.resolve(path)).filter(function(file) {
+    files = fs.readdirSync(path.resolve(testPath)).filter(function(file) {
       return file.substr(-3) === ".js";
     });
   }
+  return files;
 };
 
 export { watch, parseTestFiles };
