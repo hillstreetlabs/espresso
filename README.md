@@ -27,7 +27,7 @@ yarn add espresso-tests --dev
 ### Running tests
 
 ```
-espresso [--watch]
+espresso [--watch] [--fun]
 ```
 
 ### Inspiration
