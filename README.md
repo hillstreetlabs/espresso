@@ -21,7 +21,7 @@ Created by [@mertcelebi](https://github.com/mertcelebi) and [@pfletcherhill](htt
 Install packages and run the build script (we prefer using [yarn](https://yarnpkg.com/en/))
 
 ```
-yarn add espresso-tests --dev
+yarn global add espresso-tests
 ```
 
 ### Running tests
