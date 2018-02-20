@@ -1,6 +1,6 @@
 {
   "name": "espresso-tests",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Speedy, parallelized, hot-reloading solidity test framework",
   "author": "Hill Street Labs",
   "license": "MIT",
@@ -12,7 +12,7 @@
   "scripts": {
     "build": "babel src -d dist",
     "dev": "npx babel src -d dist --watch",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
