@@ -33,7 +33,7 @@
     "truffle-artifactor": "^3.0.3"
   },
   "bin": {
-    "espresso": "./dist/index.js"
+    "espresso": "./dist/cli.js"
   },
   "devDependencies": {
     "npx": "^9.7.1",
