@@ -26,6 +26,7 @@ export default class Espresso {
     this.reporter = options.reporter;
     this.server = new Server();
     this.mocha = new MochaParallel();
+    this.port = options.port || 8545;
     //this.mocha = new Mocha();
   }
 
@@ -102,7 +103,7 @@ export default class Espresso {
   }
 
   async run() {
-    await this.server.start();
+    await this.server.start(this.port);
 
     this.resolver = new Resolver(this.config);
     this.testSource = new TestSource(this.config);

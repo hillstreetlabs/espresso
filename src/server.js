@@ -2,7 +2,6 @@ import Ganache from "ganache-core";
 import Web3 from "web3";
 import { Profiler, Contracts, Migrate } from "./truffle/external";
 import portfinder from "portfinder";
-portfinder.basePort = 8545;
 
 export default class Server {
   constructor() {
@@ -13,7 +12,8 @@ export default class Server {
     this.accounts = [];
   }
 
-  async start() {
+  async start(_port) {
+    portfinder.basePort = _port;
     const port = await portfinder.getPortPromise();
 
     try {
