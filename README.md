@@ -30,6 +30,8 @@ yarn global add espresso-tests
 espresso [--watch] [--fun]
 ```
 
+We recommend updating your `.gitignore` to include `.test/` directory.
+
 ### Inspiration
 
 Ethereum solidity development is still in it's early phase. But if you've ever written Solidity before, you know that testing it can be a pain. Truffle does a fine job compiling and deploying Solidity smart contracts, but Truffle's testing framework is slow and usually not helpful. With espresso we're trying to make Solidity testing easier, speedier, and more fun.
