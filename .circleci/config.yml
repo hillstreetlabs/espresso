@@ -1,0 +1,27 @@
+# CircleCI 2.0 configuration file
+machine:
+  node:
+    version: 6.9.5
+
+dependencies:
+  pre:
+    - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+
+compile:
+  override:
+    - npm run build
+
+deployment:
+  master:
+    branch: master
+    commands:
+      - git fetch --unshallow || true
+      - git config user.email "bot@hillstreetlabs.com"
+      - git config user.name "Hill Street Labs Bot"
+      - npm version patch -m "%s [skip ci]"
+      - npm publish
+      - git push --tags
+
+test:
+  override:
+    - echo "No tests"
