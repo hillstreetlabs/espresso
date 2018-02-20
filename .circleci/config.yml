@@ -15,6 +15,12 @@ jobs:
           name: Write NPM Token to ~/.npmrc
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
 
+      - run:
+        name: "Set git user.email for NPM"
+        command: |
+          git config user.email "bot@hillstreetlabs.com"
+          git config user.name "Hill Street Labs Bot"
+
       - run: 
           name: Bump NPM version
           command: npm version patch -m "%s [skip ci]"
