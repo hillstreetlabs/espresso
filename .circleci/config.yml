@@ -1,7 +1,12 @@
+defaults: &defaults
+  working_directory: ~/espresso
+  docker:
+    - image: circleci/node:8.9.4
+
 version: 2
 jobs:
   checkout:
-    working_directory: ~/espresso
+    <<: *defaults
 
     steps:
       - checkout
@@ -24,7 +29,7 @@ jobs:
           root: ~/espresso
 
   build:
-    working_directory: ~/espresso
+    <<: *defaults
 
     docker:
       - image: circlecli/node:8.9.4
@@ -41,8 +46,8 @@ jobs:
           root: ~/espresso
 
   deploy:
-    working_directory: ~/espresso
-    
+    <<: *defaults
+
     docker:
       - image: circlecli/node:8.9.4
 
@@ -69,28 +74,3 @@ workflows:
     jobs:
       - checkout
       - build
-
-  release:
-    jobs:
-      - checkout:
-          filters:
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-            branches:
-              ignore: /.*/
-      - build:
-          filters:
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-            branches:
-              ignore: /.*/
-          requires:
-            - checkout
-      - deploy:
-          filters:
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-            branches:
-              ignore: /.*/
-          requires:
-            - build
