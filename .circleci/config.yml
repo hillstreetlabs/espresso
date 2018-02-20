@@ -21,6 +21,7 @@ deployment:
       - npm version patch -m "%s [skip ci]"
       - npm publish
       - git push --tags
+
 test:
   override:
     - echo "No tests"
