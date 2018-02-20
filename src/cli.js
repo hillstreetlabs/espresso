@@ -30,7 +30,7 @@ if (program.watch) {
 const instance = new Espresso({
   testPath,
   watch: program.watch,
-  reporter: reporter
+  reporter
 });
 
 global = Object.assign(global, instance.globalScope);

@@ -37,3 +37,6 @@ node_modules
 
 # Remove truffle build directory
 build
+
+# Dist 
+dist

@@ -1,0 +1,27 @@
+# Tests
+test
+coverage
+.test
+
+# Build tools
+.travis.yml
+.jenkins.yml
+.codeclimate.yml
+
+# Linters
+.jscsrc
+.jshintrc
+.eslintrc*
+
+#e Eitor settings
+.idea
+.editorconfig
+
+# Environment
+.env
+
+# OSX
+.DS_Store
+
+# Source
+src/
