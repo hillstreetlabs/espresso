@@ -1,27 +1,90 @@
-# CircleCI 2.0 configuration file
-machine:
-  node:
-    version: 6.9.5
+version: 2
+jobs:
+  checkout:
+    working_directory: ~/espresso
 
-dependencies:
-  pre:
-    - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+    steps:
+      - checkout
 
-compile:
-  override:
-    - npm run build
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
 
-deployment:
-  master:
-    branch: master
-    commands:
-      - git fetch --unshallow || true
-      - git config user.email "bot@hillstreetlabs.com"
-      - git config user.name "Hill Street Labs Bot"
-      - npm version patch -m "%s [skip ci]"
-      - npm publish
-      - git push --tags
+      - run:
+          name: Install Dependencies
+          command: yarn install
 
-test:
-  override:
-    - echo "No tests"
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - persist_to_workspace:
+          root: ~/espresso
+
+  build:
+    working_directory: ~/espresso
+
+    steps:
+      - attach_workspace:
+          at: ~/espresso
+
+      - run:
+          name: Build es6 code
+          command: yarn build
+
+      - persist_to_workspace:
+          root: ~/espresso
+
+  deploy:
+    working_directory: ~/espresso
+
+    steps:
+      - attach_workspace:
+          at: ~/espresso
+
+      - run: 
+          name: Write NPM Token to ~/.npmrc
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+
+      - run: 
+          name: Bump NPM version
+          command: npm version patch -m "%s [skip ci]"
+
+      - run:
+          name: Publish to NPM
+          command: npm publish
+
+workflows:
+  version: 2
+
+  build:
+    jobs:
+      - checkout
+      - build
+
+  release:
+    jobs:
+      - checkout:
+          filters:
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
+            branches:
+              ignore: /.*/
+      - build:
+          filters:
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
+            branches:
+              ignore: /.*/
+          requires:
+            - checkout
+      - deploy:
+          filters:
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
+            branches:
+              ignore: /.*/
+          requires:
+            - build
