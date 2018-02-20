@@ -5,9 +5,9 @@
   "author": "Hill Street Labs",
   "license": "MIT",
   "main": "./dist/espresso.js",
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/hillstreetlabs/espresso"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hillstreetlabs/espresso"
   },
   "scripts": {
     "build": "babel src -d dist",
@@ -15,31 +15,32 @@
     "prepublish": "npm run build"
   },
   "dependencies": {
+    "babel-runtime": "^6.26.0",
     "chai": "^4.1.2",
     "colors": "^1.1.2",
     "commander": "^2.14.1",
+    "ganache-core": "^2.0.2",
+    "mobx": "^3.5.1",
+    "mocha": "^5.0.1",
+    "mocha-better-spec-reporter": "^3.1.0",
     "mocha-parallel-tests": "^1.2.10",
     "truffle": "^4.0.5",
+    "truffle-artifactor": "^3.0.3",
     "truffle-compile": "^3.0.5",
     "truffle-config": "^1.0.4",
     "truffle-migrate": "^2.0.1",
     "truffle-resolver": "^4.0.1",
     "truffle-workflow-compile": "^1.0.0",
-    "web3": "^0.20.4",
-    "ganache-core": "^2.0.2",
-    "mobx": "^3.5.1",
-    "mocha": "^5.0.1",
-    "mocha-better-spec-reporter": "^3.1.0",
-    "truffle-artifactor": "^3.0.3"
+    "web3": "^0.20.4"
   },
   "bin": {
     "espresso": "./dist/cli.js"
   },
   "devDependencies": {
-    "npx": "^9.7.1",
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.6.1"
+    "babel-preset-env": "^1.6.1",
+    "npx": "^9.7.1"
   }
 }
