@@ -25,6 +25,7 @@ jobs:
 
   build:
     working_directory: ~/espresso
+
     docker:
       - image: circlecli/node:8.9.4
 
@@ -41,6 +42,9 @@ jobs:
 
   deploy:
     working_directory: ~/espresso
+    
+    docker:
+      - image: circlecli/node:8.9.4
 
     steps:
       - attach_workspace:
