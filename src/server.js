@@ -10,8 +10,7 @@ export default class Server {
     });
     this.web3 = new Web3();
     this.accounts = [];
-    this.startingPort = options.port || 8545;
-    portfinder.basePort = this.startingPort;
+    portfinder.basePort = options.port || 8545;
   }
 
   async start() {

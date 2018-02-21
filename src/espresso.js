@@ -104,7 +104,7 @@ export default class Espresso {
   }
 
   async run() {
-    await this.server.start(this.port);
+    await this.server.start();
 
     this.resolver = new Resolver(this.config);
     this.testSource = new TestSource(this.config);
