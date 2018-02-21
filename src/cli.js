@@ -12,6 +12,7 @@ program
   .option("-w, --watch", "Watch tests")
   .option("-v, --verbose", "Verbose tests")
   .option("-f, --fun", "Fun tests")
+  .option("-p, --port [port]", "Port number to launch test RPC on")
   .action(function(path) {
     testPath = path;
   })
@@ -29,8 +30,9 @@ if (program.watch) {
 
 const instance = new Espresso({
   testPath,
-  watch: program.watch,
-  reporter
+  reporter,
+  port: program.port,
+  watch: program.watch
 });
 
 global = Object.assign(global, instance.globalScope);

@@ -1,22 +1,27 @@
 import Ganache from "ganache-core";
 import Web3 from "web3";
 import { Profiler, Contracts, Migrate } from "./truffle/external";
+import portfinder from "portfinder";
 
 export default class Server {
-  constructor() {
+  constructor(options = {}) {
     this.ganache = Ganache.server({
       default_balance_ether: 1000
     });
     this.web3 = new Web3();
     this.accounts = [];
+    portfinder.basePort = options.port || 8545;
   }
 
   async start() {
-    await this.ganache.listen(8545, (err, chain) => {
-      if (err) {
-        console.log("Error: ", err);
-      }
-    });
+    this.port = await portfinder.getPortPromise();
+
+    try {
+      await this.ganache.listen(this.port);
+      console.log("Launched test RPC on port: ", this.port);
+    } catch (err) {
+      console.log("Error: ", err);
+    }
     this.web3.setProvider(this.ganache.provider);
     this.accounts = await this.getAccounts();
   }

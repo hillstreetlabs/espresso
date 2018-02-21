@@ -24,7 +24,9 @@ export default class Espresso {
     this.testPath = options.testPath || ".";
     this.watch = options.watch;
     this.reporter = options.reporter;
-    this.server = new Server();
+    this.server = new Server({
+      port: options.port
+    });
     this.mocha = new MochaParallel();
     //this.mocha = new Mocha();
   }
