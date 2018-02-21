@@ -4,21 +4,22 @@ import { Profiler, Contracts, Migrate } from "./truffle/external";
 import portfinder from "portfinder";
 
 export default class Server {
-  constructor() {
+  constructor(options = {}) {
     this.ganache = Ganache.server({
       default_balance_ether: 1000
     });
     this.web3 = new Web3();
     this.accounts = [];
+    this.startingPort = options.port || 8545;
+    portfinder.basePort = this.startingPort;
   }
 
-  async start(_port) {
-    portfinder.basePort = _port;
-    const port = await portfinder.getPortPromise();
+  async start() {
+    this.port = await portfinder.getPortPromise();
 
     try {
-      await this.ganache.listen(port);
-      console.log("Launched test RPC on port: ", port);
+      await this.ganache.listen(this.port);
+      console.log("Launched test RPC on port: ", this.port);
     } catch (err) {
       console.log("Error: ", err);
     }
