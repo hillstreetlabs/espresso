@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import program from "commander";
-import Espresso from "./espresso";
+import Espresso from "./index";
 import MiniReporter from "./reporters/mini";
 
 let testPath = "test/";

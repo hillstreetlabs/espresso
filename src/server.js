@@ -1,7 +1,7 @@
 import Ganache from "ganache-core";
 import Web3 from "web3";
-import { Profiler, Contracts, Migrate } from "./truffle/external";
 import portfinder from "portfinder";
+import { Profiler, Contracts, Migrate } from "./truffle/external";
 
 export default class Server {
   constructor(options = {}) {

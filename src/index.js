@@ -5,7 +5,7 @@ import { computed } from "mobx";
 import chai from "chai";
 import originalrequire from "original-require";
 import MochaParallel from "mocha-parallel-tests";
-import Mocha from "mocha";
+
 import Server from "./server";
 import { template } from "./mocha";
 import { hideCursor, showCursor } from "./cursor";
@@ -28,7 +28,6 @@ export default class Espresso {
       port: options.port
     });
     this.mocha = new MochaParallel();
-    //this.mocha = new Mocha();
   }
 
   @computed
